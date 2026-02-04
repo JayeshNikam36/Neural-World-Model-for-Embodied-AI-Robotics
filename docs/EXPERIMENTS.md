@@ -1,0 +1,16 @@
+# Experiments Tracking
+
+## Experiment Template
+
+**Experiment ID**: exp-001
+**Date**: YYYY-MM-DD
+**Model**: ...
+**Dataset**: RoboNet subset
+**Hyperparameters**: ...
+**Results**:
+- Loss: ...
+- PSNR/SSIM/FVD: ...
+**Notes**: ...
+
+## Log
+(Add entries here as you run experiments)
