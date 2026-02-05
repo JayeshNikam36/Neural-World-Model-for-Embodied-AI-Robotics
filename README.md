@@ -1,47 +1,75 @@
-# Neural World Model for Embodied AI & Robotics
+# Neural World Model for Embodied AI Robotics
 
-<p align="center">
-  <img src="docs/images/architecture_diagram.png" width="800" alt="Project Architecture">
-  <br>
-  <em>Building a physics-informed, multi-modal neural world model for real robot prediction and planning</em>
-</p>
+**Project Title**: Action-Conditioned Latent Dynamics for Future Frame Prediction  
+**Author**: Jayesh Nikam  
+**Status**: Completed Prototype  
+**Date**: February 2025  
 
-## Overview
+---
 
-This project develops a **neural world model** capable of predicting future states of robotic manipulation tasks from multi-modal inputs (RGB video, depth, proprioception).  
-Trained on real-world datasets like **RoboNet**, the model generates video rollouts conditioned on actions — a key building block for model-based reinforcement learning, sim-to-real transfer, and embodied AI.
+## 🎯 Objective
 
-### Key Features (Planned)
-- Multi-modal encoder (RGB + depth + robot states)
-- Diffusion-based latent video prediction
-- Physics-informed training (optical flow, collision, dynamics)
-- Long-horizon open-loop rollouts
-- TensorRT optimization for edge deployment (Jetson)
-- Interactive Gradio demo
+The goal of this project is to build a **neural world model** that learns compact latent representations of robot interaction scenes and predicts **future visual observations conditioned on actions**.
 
-## Project Status
-- Phase 0: Setup & Environment → **In Progress**
-- Phase 1: Data Pipeline → Not started
-- Phase 2: Encoder Models → Not started
-- Phase 3: World Model Core → Not started
-- Phase 4: Physics Integration → Not started
-- Phase 5: Training Pipeline → Not started
-- Phase 6: Optimization & TensorRT → Not started
-- Phase 7: Demo & Documentation → Not started
+This type of model is a foundational component for:
+- Model-based reinforcement learning
+- Planning and control
+- Embodied AI and robotics simulation
 
-## Installation (Placeholder)
+The project uses the **RoboNet dataset** and focuses on **open-loop rollout prediction**.
 
-```bash
-# 1. Clone the repository
-git clone https://github.com/YOUR_GITHUB_USERNAME/neural-world-model-robotics.git
-cd neural-world-model-robotics
+---
 
-# 2. Create and activate conda environment
-conda create -n world_model python=3.10
-conda activate world_model
+## 🧠 Approach
 
-# 3. Install dependencies (to be updated)
-pip install -r requirements.txt
+The system is trained in two stages:
 
-# 4. (Later) Run demo / training
-python scripts/inference.py --help
+### 1. Variational Autoencoder (VAE)
+- Learns compact latent representations of individual frames
+- Convolutional encoder / decoder
+- Trained with **MSE + KL divergence**
+- Fine-tuned with **LPIPS perceptual loss** to improve sharpness
+
+### 2. Latent Dynamics Model
+- GRU-based recurrent model
+- Predicts next latent state conditioned on:
+  - Current latent state
+  - Continuous robot action (4-D)
+- Autoregressive rollout for up to **20 future steps**
+
+### 3. Evaluation
+- Open-loop prediction (no ground-truth correction)
+- Latent predictions decoded back to pixel space
+- Metrics computed over **20-step rollouts**
+
+---
+
+## 📊 Results Summary
+
+Evaluation performed on **8 validation samples**, each with **20-step open-loop rollouts**, using the sharpened VAE.
+
+### 🔢 Quantitative Metrics
+
+| Sample | Avg MSE | Avg PSNR (dB) | Avg SSIM | Notes |
+|------|--------|---------------|----------|------|
+| 0 | 0.0267 | 15.91 | 0.4019 | Moderate quality |
+| 1 | 0.0196 | 17.09 | 0.5654 | **Best SSIM – strong structure** |
+| 2 | 0.0245 | 16.11 | 0.2965 | Some detail loss |
+| 3 | 0.0557 | 12.54 | 0.1787 | Strong drift |
+| 4 | 0.0198 | 17.15 | 0.5415 | Stable rollout |
+| **Average** | **~0.022** | **~16.5** | **~0.45** | Acceptable early prototype |
+
+### 🎥 Qualitative Observations
+
+- **Short-term predictions (5–10 steps)**:
+  - Sharp reconstructions
+  - Correct motion direction
+  - High structural similarity
+
+- **Long-term predictions (15–20 steps)**:
+  - Gradual blur and drift
+  - Accumulated latent error
+  - Common limitation of deterministic dynamics models
+
+Best examples are saved in:
+
